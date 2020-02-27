@@ -1,5 +1,5 @@
 build:
-	mingw32-gcc -Wfatal-errors \
+	mingw32-gcc -Wfatal-errors -O2 \
 	./source/*.cpp \
 	-I"include" \
 	-I"C:\libsdl\include" \

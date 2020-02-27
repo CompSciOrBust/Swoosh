@@ -40,6 +40,6 @@ class Corners : public GameObject
 class PlayerObject : public GameObject
 {
     public:
-    PlayerObject(SDL_Renderer *RendererRef, int Size);
+    PlayerObject(SDL_Renderer *RendererRef, int Size, int X, int Y);
     virtual void RenderObject();
 };

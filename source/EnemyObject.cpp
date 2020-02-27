@@ -38,7 +38,7 @@ void Enemy::UpdateObject()
 {
     if(GetTime() > TimeToMove)
     {
-        PosX += DeltaMovementX * *DeltaTimeUpdate;
-        PosY += DeltaMovementY * *DeltaTimeUpdate;
+        PosX += DeltaMovementX * *DeltaTimeUpdate * ((float)Width / 41);
+        PosY += DeltaMovementY * *DeltaTimeUpdate * ((float)Height / 41);
     }
 }

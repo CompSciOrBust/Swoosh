@@ -46,7 +46,7 @@ class Corners : public GameObject
 class PlayerObject : public GameObject
 {
     public:
-    PlayerObject(SDL_Renderer *RendererRef, int Size);
+    PlayerObject(SDL_Renderer *RendererRef, int Size, int X, int Y);
     virtual void RenderObject();
 };
 
@@ -208,7 +208,7 @@ GameManager::GameManager(SDL_Renderer *RendererRef, SDL_Event *EventRef, int Wid
     ArenaX = (Width - ArenaSize) / 2;
     ArenaY = (Height - ArenaSize) / 2;
     //Create player object
-    PlayerObject *Player = new PlayerObject(RendererRef, ArenaSize / 50);
+    PlayerObject *Player = new PlayerObject(RendererRef, ArenaSize / 50, ArenaX + ArenaSize / 2, ArenaY + ArenaSize / 2);
     GameObjectsVector.push_back(Player);
     //Create corners
     int CornerSize = ArenaSize / WallSegments;
@@ -242,16 +242,17 @@ void Corners::RenderObject()
     SDL_RenderFillRect(Renderer, &CornerRect);
 }
 
-PlayerObject::PlayerObject(SDL_Renderer *RendererRef, int Size)
+PlayerObject::PlayerObject(SDL_Renderer *RendererRef, int Size, int X, int Y)
 {
     Renderer = RendererRef;
     Width = Size;
     Height = Size;
+    PosX = X;
+    PosY = Y;
 }
 
 void PlayerObject::RenderObject()
 {
     SDL_SetRenderDrawColor(Renderer, 0, 128, 253, 255);
-    SDL_Rect CornerRect = {PosX,PosY,Width,Height};
-    SDL_RenderFillRect(Renderer, &CornerRect);
+    DrawCircle(Renderer, PosX, PosY, Width);
 }
