@@ -28,11 +28,12 @@ class GameManager
     float NextEnemySpawnTime = 0;
     float EnemySpawnRate = 2;
     int WallSegments = 12;
+    int *WindowState;
     std::vector<GameObject*> GameObjectsVector = std::vector<GameObject*>(0);
     public:
     void DrawFrame();
     void DoLogic();
-    GameManager(SDL_Renderer *RendererRef, SDL_Event *EventRef, int WidthRef, int HeightRef, bool *IsRunningRef);
+    GameManager(SDL_Renderer *RendererRef, SDL_Event *EventRef, int WidthRef, int HeightRef, bool *IsRunningRef, int *WindowStateRef);
     ~GameManager();
 };
 
@@ -49,6 +50,38 @@ class PlayerObject : public GameObject
     PlayerObject(SDL_Renderer *RendererRef, int Size, int X, int Y);
     virtual void RenderObject();
 };
+
+GameManager::GameManager(SDL_Renderer *RendererRef, SDL_Event *EventRef, int WidthRef, int HeightRef, bool *IsRunningRef, int *WindowStateRef)
+{
+    SDL_SetRelativeMouseMode(SDL_TRUE);
+    Renderer = RendererRef;
+    Event = *EventRef;
+    Width = WidthRef;
+    Height = HeightRef;
+    IsRunning = IsRunning;
+    TimeStarted = GetTime();
+    NextEnemySpawnTime = TimeStarted;
+    WindowState = WindowStateRef;
+    //Set up Arena vars
+    if (Width > Height) ArenaSize = Height;
+    else ArenaSize = Width;
+    ArenaSize = ArenaSize - ArenaSize % WallSegments;
+    ArenaX = (Width - ArenaSize) / 2;
+    ArenaY = (Height - ArenaSize) / 2;
+    //Create player object
+    PlayerObject *Player = new PlayerObject(RendererRef, ArenaSize / 50, ArenaX + ArenaSize / 2, ArenaY + ArenaSize / 2);
+    GameObjectsVector.push_back(Player);
+    //Create corners
+    int CornerSize = ArenaSize / WallSegments;
+    Corners *CornerTL = new Corners(RendererRef, CornerSize, ArenaX, ArenaY);
+    Corners *CornerTR = new Corners(RendererRef, CornerSize, ArenaX + ArenaSize - CornerSize, ArenaY);
+    Corners *CornerBL = new Corners(RendererRef, CornerSize, ArenaX, ArenaY + ArenaSize - CornerSize);
+    Corners *CornerBR = new Corners(RendererRef, CornerSize, ArenaX + ArenaSize - CornerSize, ArenaY + ArenaSize - CornerSize);
+    GameObjectsVector.push_back(CornerTL);
+    GameObjectsVector.push_back(CornerTR);
+    GameObjectsVector.push_back(CornerBL);
+    GameObjectsVector.push_back(CornerBR);
+}
 
 void GameManager::DrawFrame()
 {
@@ -122,6 +155,13 @@ void GameManager::DoLogic()
     for (int i = 4; i < GameObjectsVector.size(); i++)
     {
         GameObjectsVector.at(i)->UpdateObject();
+        //check for collision
+        if (GameObjectsVector.at(0)->PosX > GameObjectsVector.at(i)->PosX && GameObjectsVector.at(0)->PosX < GameObjectsVector.at(i)->PosX + GameObjectsVector.at(i)->Width && GameObjectsVector.at(0)->PosY > GameObjectsVector.at(i)->PosY && GameObjectsVector.at(0)->PosY < GameObjectsVector.at(i)->PosY + GameObjectsVector.at(i)->Height)
+        {
+            printf("Collision %f\n", GetTime());
+            *WindowState = 2;
+        }
+        
     }
     //Spawn new enemies
     if(NextEnemySpawnTime < GetTime())
@@ -189,37 +229,6 @@ void GameManager::SpawnEnemies()
         }
         break;
     }
-}
-
-GameManager::GameManager(SDL_Renderer *RendererRef, SDL_Event *EventRef, int WidthRef, int HeightRef, bool *IsRunningRef)
-{
-    SDL_SetRelativeMouseMode(SDL_TRUE);
-    Renderer = RendererRef;
-    Event = *EventRef;
-    Width = WidthRef;
-    Height = HeightRef;
-    IsRunning = IsRunning;
-    TimeStarted = GetTime();
-    NextEnemySpawnTime = TimeStarted;
-    //Set up Arena vars
-    if (Width > Height) ArenaSize = Height;
-    else ArenaSize = Width;
-    ArenaSize = ArenaSize - ArenaSize % WallSegments;
-    ArenaX = (Width - ArenaSize) / 2;
-    ArenaY = (Height - ArenaSize) / 2;
-    //Create player object
-    PlayerObject *Player = new PlayerObject(RendererRef, ArenaSize / 50, ArenaX + ArenaSize / 2, ArenaY + ArenaSize / 2);
-    GameObjectsVector.push_back(Player);
-    //Create corners
-    int CornerSize = ArenaSize / WallSegments;
-    Corners *CornerTL = new Corners(RendererRef, CornerSize, ArenaX, ArenaY);
-    Corners *CornerTR = new Corners(RendererRef, CornerSize, ArenaX + ArenaSize - CornerSize, ArenaY);
-    Corners *CornerBL = new Corners(RendererRef, CornerSize, ArenaX, ArenaY + ArenaSize - CornerSize);
-    Corners *CornerBR = new Corners(RendererRef, CornerSize, ArenaX + ArenaSize - CornerSize, ArenaY + ArenaSize - CornerSize);
-    GameObjectsVector.push_back(CornerTL);
-    GameObjectsVector.push_back(CornerTR);
-    GameObjectsVector.push_back(CornerBL);
-    GameObjectsVector.push_back(CornerBR);
 }
 
 GameManager::~GameManager()

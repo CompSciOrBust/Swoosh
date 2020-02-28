@@ -26,7 +26,7 @@ class GameManager
     public:
     void DrawFrame();
     void DoLogic();
-    GameManager(SDL_Renderer *RendererRef, SDL_Event *EventRef, int WidthRef, int HeightRef, bool *IsRunningRef);
+    GameManager(SDL_Renderer *RendererRef, SDL_Event *EventRef, int WidthRef, int HeightRef, bool *IsRunningRef, int *WindowStateRef);
     ~GameManager();
 };
 
